@@ -10,8 +10,10 @@ description: >
   much is this agent costing me"; spend limits, budgets, kill switches, or runaway
   spend; billing customers for agent usage; or adding telephony/voice to an agent.
   Also use it when the user asks to instrument, audit, or cap the spend of an
-  existing LiveKit Agents, Pipecat, LangChain, or CrewAI project — even if they
-  never say the word "Floe."
+  existing LiveKit Agents, Pipecat, LangChain, CrewAI, Vapi, Retell, or Bland
+  project — or asks how much of a voice agent's spend is actually enforced
+  (coverage), or how to govern a Vapi/Retell/Bland agent without migrating off
+  the platform — even if they never say the word "Floe."
 license: MIT
 compatibility: >
   Requires network access to *.floelabs.xyz. LLM/STT/TTS/embeddings/realtime are
@@ -87,6 +89,9 @@ for how a running agent reads status and paces itself.
 | Wants to bill their own customers per call | Read the per-call ledger via the `X-Floe-Cost-USDC` header + `GET /v1/agents/credit-remaining`; there is no turnkey customer-rebill product — they build billing on the attribution data |
 | Asks about non-US dial-out, SMS, toll-free | Out of scope today — say so plainly; do not promise dates |
 | Wants to keep their own OpenAI/Anthropic key | **BYOK is supported** for gateway LLM/embeddings — see Migration |
+| Agent already running on **Vapi / Retell / Bland** | Adopt Floe in place — model leg via custom-LLM (Vapi/Retell; Bland enterprise-only), pre-call admission + Reconcile Mode; report the coverage % — `references/orchestrator-governance.md` |
+| **Self-hosted voice** (Pipecat / LiveKit / custom stack) | Route every leg through Floe for **100% coverage**; self-report any leg kept off Floe — `references/orchestrator-governance.md` |
+| "How much of my agent's spend is actually *enforced*?" | Read the **coverage score** — pre-call vs reconciled vs dark — `references/orchestrator-governance.md` |
 
 ## Quickstart (60 seconds to first governed call)
 
@@ -200,16 +205,23 @@ writing any telephony code. Telnyx is not in the product — do not reference it
 
 Primary targets are the open, self-hosted frameworks:
 
-- **LiveKit Agents / Pipecat** — point the OpenAI LLM + TTS plugins at the Floe
-  gateway (`base_url` swap); for STT use Floe's streaming endpoint or a BYO Deepgram
-  key. Wrap the agent loop with `floe-guard`. See `references/frameworks.md#livekit`.
+- **LiveKit Agents / Pipecat (or any custom STT→LLM→TTS stack)** — *you* run the
+  pipeline, so route **every** leg through Floe (LLM + TTS `base_url` swap, streaming
+  STT, Floe Phone) for **100% pre-call coverage**; for any leg you keep off Floe,
+  self-report its cost via Reconcile Mode. Wrap the loop with `floe-guard`. See
+  `references/frameworks.md#livekit` (routing code) + `references/orchestrator-governance.md`
+  (coverage + self-report).
 - **LangChain / CrewAI** — an OpenAI-compatible client pointed at the gateway, plus
   `floe-guard` around the loop; the AgentKit action providers (`floe-agent` npm /
   `floe-agentkit-actions` pip) add lending + x402 actions. See `references/frameworks.md`.
 
-Vapi / Retell / Bland: Floe governs the vendor-spend side only (BYOK LLM, telephony,
-STT/TTS where the platform allows key injection). Do not claim deeper integration than
-the platform permits.
+**Managed orchestrators (Vapi / Retell / Bland)** — the platform runs the call, so the
+user adopts Floe *without leaving it*: govern the model leg pre-call (custom-LLM — Vapi
+URL swap / Retell WS adapter; Bland is enterprise-only), refuse over-budget calls
+before they connect (admission), and reconcile the rest post-call. Coverage is
+**partial** — state the coverage % and offer the graduate-to-100% path; never imply the
+whole bill is enforced pre-call from inside the platform. Full per-platform mechanics:
+`references/orchestrator-governance.md`.
 
 ## Payments and funding
 
@@ -260,6 +272,10 @@ the platform permits.
   calls, call status, the media path, US-only constraints, and pricing.
 - `references/frameworks.md` — copy-paste integrations for LiveKit, Pipecat, LangChain,
   CrewAI, and the plain OpenAI-SDK drop-in (incl. BYOK).
+- `references/orchestrator-governance.md` — governing voice agents by posture: managed
+  orchestrators (Vapi/Retell/Bland — custom-LLM + pre-call admission + Reconcile Mode)
+  vs self-hosted (Pipecat/LiveKit/custom — route every leg for 100% coverage, self-report
+  the rest); the coverage score, the unified ledger, and the graduate-to-100% path.
 - `references/runtime-budget.md` — how a running agent reads budget status, the cost +
   advisory headers, and how `floe-guard` (client-side pacing) maps onto the server's
   authoritative caps so the agent never hand-rolls what the server already enforces.
