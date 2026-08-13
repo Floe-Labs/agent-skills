@@ -207,7 +207,8 @@ Primary targets are the open, self-hosted frameworks:
 
 - **LiveKit Agents / Pipecat (or any custom STT→LLM→TTS stack)** — *you* run the
   pipeline, so route **every** leg through Floe (LLM + TTS `base_url` swap, streaming
-  STT, Floe Phone) for **100% pre-call coverage**; for any leg you keep off Floe,
+  STT, Floe Phone) for **100% coverage** — request legs pre-call, streaming legs (STT,
+  telephony) live-metered with a checkpoint cutoff; for any leg you keep off Floe,
   self-report its cost via Reconcile Mode. Wrap the loop with `floe-guard`. See
   `references/frameworks.md#livekit` (routing code) + `references/orchestrator-governance.md`
   (coverage + self-report).

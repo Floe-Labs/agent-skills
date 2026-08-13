@@ -17,8 +17,10 @@ exactly what the coverage score exists to keep honest.
 spend that was **pre-call enforceable** (Floe gated it before the spend) vs
 **reconciled** (counted after the call, enforced *next* session) vs **dark** (on a
 platform never connected to Floe — invisible). Use it to state what's governed and to
-show the upgrade path. Every leg's spend, regardless of path, lands on one ledger:
-`GET /v1/developer/ledger?groupBy=source|customer|campaign|agent`.
+show the upgrade path. Every **Floe-metered or reconciled** leg lands on one ledger
+(`GET /v1/developer/ledger?groupBy=source|customer|campaign|agent`); **dark** spend —
+legs on platforms never connected to Floe — stays off the ledger by definition (you
+can't ledger what you never see).
 
 ## Self-hosted / custom (Pipecat, LiveKit, any BYO stack) — the 100% path
 
@@ -31,8 +33,10 @@ You control the pipeline, so route each leg through Floe and it's gated pre-call
 | TTS | `POST /v1/audio/speech` (OpenAI-compatible, e.g. `openai/tts-1`) |
 | Telephony | Floe Phone — `POST /v1/developer/agents/{id}/numbers` + `POST /v1/calls` (`telephony.md`) |
 
-Every leg on Floe = 100% coverage and no platform fee. **For any leg you keep off
-Floe**, close the gap with **Reconcile Mode self-report** (recipe:
+Every leg on Floe = 100% coverage and no platform fee. (Request legs — LLM, TTS — gate
+**pre-call**; streaming legs — STT, telephony — are **live-metered** and cut at ~60s
+checkpoints, so a small bounded partial can land after admission.) **For any leg you
+keep off Floe**, close the gap with **Reconcile Mode self-report** (recipe:
 `pipecat-livekit-reconcile/`): connect the agent (`POST /v1/developer/orchestrators`,
 provider `pipecat` or `livekit`) and have your code
 
@@ -68,7 +72,8 @@ exposes — three mechanisms, layered from strongest to catch-all:
      the first node POST the pre-call URL and branch to an **End Call** node on a
      non-`200` (Floe returns `200 {allowed:true}` / `402 {allowed:false}`). That URL
      authenticates on its capability token alone — no signature, since a static node
-     can't HMAC.
+     can't HMAC. Treat that URL as a secret (rotate to revoke); the token performs
+     **admission checks only** — it can't read balances or write spend.
 3. **Everything else, post-call — Reconcile Mode.** Point the platform's end-of-call
    webhook at the returned **call-end URL**; the whole call's cost lands on the ledger,
    counts against policies, and a `suspend_agent` breach blocks the next call.
@@ -79,9 +84,12 @@ exposes — three mechanisms, layered from strongest to catch-all:
 | **Retell** | WS adapter | `call_inbound` reject | ✓ |
 | **Bland** | ✗ (enterprise-only) | Pathway Webhook node | ✓ |
 
-Coverage on a managed orchestrator is **partial** (model + admission; STT/TTS/telephony
-reconciled) — always state the coverage % and offer the graduate-to-100% path. Do not
-imply the whole bill is enforced pre-call from inside the platform; it isn't.
+Coverage on a managed orchestrator is **partial**. The coverage % is the share of
+*spend* that's pre-call enforceable — on Vapi/Retell that's the model leg (STT/TTS/
+telephony reconcile); on Bland it's ~0 (every leg reconciles). Report the number from
+the coverage endpoint. **Admission is a separate call-level gate, not a metered leg** —
+it refuses over-budget calls but does not add to the coverage %. Never imply the whole
+bill is enforced pre-call from inside the platform; it isn't.
 
 ## Graduate to 100% coverage
 

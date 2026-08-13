@@ -8,7 +8,7 @@ This repo is the canonical home for Floe's agent skills. Today it ships one:
 
 | Skill | What it does |
 |---|---|
-| [`skills/floe`](skills/floe/SKILL.md) | Give any agent metered, budget-capped multi-vendor API access through one Floe key. Onboarding, migration, spend policies, telephony, framework integrations, and runtime budgeting. |
+| [`skills/floe`](skills/floe/SKILL.md) | Give any agent metered, budget-capped multi-vendor API access through one Floe key. Onboarding, migration, spend policies, voice-orchestrator governance (Vapi/Retell/Bland + self-hosted 100% coverage), telephony, framework integrations, and runtime budgeting. |
 
 Works with Claude Code, the Claude Agent SDK, Cursor, and any client that loads
 [Agent Skills](https://www.anthropic.com/news/skills).
