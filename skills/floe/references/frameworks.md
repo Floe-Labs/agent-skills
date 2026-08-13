@@ -121,12 +121,26 @@ Budget-relevant tools: `get_credit_remaining`, `get_spend_limit`, `set_spend_lim
 
 ## Managed voice platforms (Vapi / Retell / Bland)
 
-Floe governs only the vendor-spend side the platform lets you inject — BYOK LLM,
-telephony, STT/TTS where key injection is allowed. Do not claim deeper integration than
-the platform permits.
+Adopt Floe *inside* the platform — no migration. Three layered mechanisms: the **model
+leg** pre-call via custom-LLM (Vapi URL swap; Retell WS adapter; Bland is enterprise-only
+— skip), **admission** to refuse an over-budget call before it connects (Vapi
+assistant-request, Retell `call_inbound`, Bland Pathway Webhook node → End Call on a
+non-`200`), and **Reconcile Mode** for the rest (point the end-of-call webhook at Floe →
+whole-call spend on the ledger, enforced next session, `suspend_agent` trips the breaker).
+Coverage is **partial**: on Vapi/Retell the model leg is pre-call and STT/TTS/telephony
+reconcile; on **Bland every leg — model included — reconciles** (no custom-LLM). State
+the coverage % and, for 100%, graduate onto a self-hosted stack. Full per-platform
+mechanics + endpoints: `orchestrator-governance.md`.
 
-## Every integration, same three habits
+## Gateway integrations — same three habits
+
+For anything that calls the Floe **gateway** directly (the drop-in, LiveKit/Pipecat,
+LangChain/CrewAI):
 
 1. `base_url` → `https://credit-api.floelabs.xyz/v1`, key → `floe_…`, `max_retries=0`.
 2. Set a server cap (`PUT /v1/agents/spend-limit`) before the first run.
 3. Wrap the loop with `floe-guard` and show the per-call receipt (`X-Floe-Cost-USDC`).
+
+**Managed orchestrators are the exception** — Vapi/Retell/Bland take no `base_url` swap
+(except Vapi's custom-LLM leg); you govern them through platform hooks + Reconcile Mode,
+not the three habits above. See the section above / `orchestrator-governance.md`.
