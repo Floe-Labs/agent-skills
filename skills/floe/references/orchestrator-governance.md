@@ -78,6 +78,38 @@ exposes — three mechanisms, layered from strongest to catch-all:
    webhook at the returned **call-end URL**; the whole call's cost lands on the ledger,
    counts against policies, and a `suspend_agent` breach blocks the next call.
 
+### Recipe — local admission with `floe-guard` (no account, same contract)
+
+The admission shapes above aren't hosted-only. `floe-guard`'s `gates` module emits
+the **identical** reject/admit JSON from a local budget, so a free user rejects an
+over-budget call today, and the paid upgrade is a URL swap — point the webhook at the
+hosted pre-call URL instead of your own handler. Same contract, local vs hosted.
+
+```python
+from floe_guard import BudgetGuard, gates
+
+guard = BudgetGuard(limit_usd=5.00)         # local; or BudgetGuard.from_floe(api_key="floe_…")
+
+# Retell inbound webhook handler:
+def on_call_inbound(payload):
+    return gates.retell(guard)              # exhausted → {"call_inbound": {"reject": True}}
+                                            # else       → {"call_inbound": {}}
+# Vapi assistant-request handler (respond within ~7.5s):
+def on_assistant_request(payload):
+    return gates.vapi(guard, assistant_id="asst_…")
+                                            # exhausted → {"error": "…"}  (spoken, then ends)
+                                            # else       → {"assistantId": "asst_…"}
+# Pipecat / Bland / custom — the provider-agnostic decision:
+#   if not gates.pre_call(guard): reject at your call boundary
+```
+
+Honest scope: these gates are a **non-binding preflight** — they read the local budget
+but don't reserve it, so under concurrency they can over-admit; the binding money-gate
+is still the in-call guard (`check`/`reserve`) or the hosted server cap. **Pre-call
+admission only — no mid-call cutoff.** `gates.retell` fires for inbound phone/SMS.
+Bland's *Send Call* metadata field name is unconfirmed, so there's no `gates.bland()` —
+use `gates.pre_call`. Requires `floe-guard >= 0.16.0`.
+
 | | Model leg (pre-call) | Admission (pre-call) | Reconcile (post-call) |
 |---|---|---|---|
 | **Vapi** | custom-llm URL swap | assistant-request | ✓ |
