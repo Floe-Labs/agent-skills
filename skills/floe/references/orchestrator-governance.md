@@ -78,6 +78,50 @@ exposes — three mechanisms, layered from strongest to catch-all:
    webhook at the returned **call-end URL**; the whole call's cost lands on the ledger,
    counts against policies, and a `suspend_agent` breach blocks the next call.
 
+### Recipe — local admission with `floe-guard` (no account, same contract)
+
+The admission shapes above aren't hosted-only. `floe-guard`'s `gates` module emits
+the **identical** reject/admit JSON from a local budget, so a free user rejects an
+over-budget call today, and the paid upgrade is a URL swap — point the webhook at the
+hosted pre-call URL instead of your own handler. Same contract, local vs hosted.
+
+```python
+from floe_guard import BudgetGuard, gates
+
+# One budget per agent (or per session). Admission reads THIS guard's remaining
+# budget — so something must debit it as calls run: a voice adapter
+# (floe_guard.integrations.pipecat / .livekit, or the TS adapters/*) records each
+# turn's usage for you, or record it yourself after each turn:
+#   guard.record(model, prompt_tokens, completion_tokens)
+# Without any recording the budget never moves and the gate always admits.
+guard = BudgetGuard(limit_usd=5.00)         # local; or BudgetGuard.from_floe(api_key="floe_…")
+
+# Estimate one call's cost so admission rejects a call that won't FIT — not only a
+# fully-spent budget ($/min × expected minutes; tune per provider/agent). Omit it
+# and the gate rejects only once remaining_usd hits 0.
+EST_CALL_USD = 0.20
+
+# Retell inbound webhook handler:
+def on_call_inbound(payload):
+    return gates.retell(guard, estimated_call_usd=EST_CALL_USD)
+                                            # exhausted → {"call_inbound": {"reject": True}}
+                                            # else       → {"call_inbound": {}}
+# Vapi assistant-request handler (respond within ~7.5s):
+def on_assistant_request(payload):
+    return gates.vapi(guard, assistant_id="asst_…", estimated_call_usd=EST_CALL_USD)
+                                            # exhausted → {"error": "…"}  (spoken, then ends)
+                                            # else       → {"assistantId": "asst_…"}
+# Pipecat / Bland / custom — the provider-agnostic decision:
+#   if not gates.pre_call(guard, estimated_call_usd=EST_CALL_USD): reject at the call boundary
+```
+
+Honest scope: these gates are a **non-binding preflight** — they read the local budget
+but don't reserve it, so under concurrency they can over-admit; the binding money-gate
+is still the in-call guard (`check`/`reserve`) or the hosted server cap. **Pre-call
+admission only — no mid-call cutoff.** `gates.retell` fires for inbound phone/SMS.
+Bland's *Send Call* metadata field name is unconfirmed, so there's no `gates.bland()` —
+use `gates.pre_call`. Requires `floe-guard >= 0.16.1` (live on PyPI).
+
 | | Model leg (pre-call) | Admission (pre-call) | Reconcile (post-call) |
 |---|---|---|---|
 | **Vapi** | custom-llm URL swap | assistant-request | ✓ |
