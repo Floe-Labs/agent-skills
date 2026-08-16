@@ -72,8 +72,10 @@ Budget remaining: $4.71 / $5.00 (session cap)
 
 Budgets are enforced server-side before each call (a breach returns `402`, or a
 kill-switch policy `suspend`s the agent) and the agent can taper gracefully with the
-[`floe-guard`](https://pypi.org/project/floe-guard/) library before it ever hits that
-floor. See [`skills/floe/SKILL.md`](skills/floe/SKILL.md) and its
+local [`floe-guard`](https://github.com/Floe-Labs/floe-guard) guardrail
+(`pip install floe-guard` / `npm i floe-guard`) before it ever hits that floor —
+the in-process, client-side complement to this skill's server-side controls. See
+[`skills/floe/SKILL.md`](skills/floe/SKILL.md) and its
 [`references/`](skills/floe/references/).
 
 ## Get a key
