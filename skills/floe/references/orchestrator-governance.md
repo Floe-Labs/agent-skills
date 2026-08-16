@@ -49,6 +49,17 @@ provider `pipecat` or `livekit`) and have your code
 Self-report **only** the legs you keep off Floe — a leg routed through Floe is already
 metered pre-call; reporting it too would double-count.
 
+**Using the `floe-guard` library?** It feeds the same reconciled coverage directly from
+its local spend ledger — no webhook wiring. Opt in with
+`guard.enable_sync(api_key="floe_…")` + `guard.sync()` (or the `floe-guard push` CLI), and
+your BYOK / off-path spend lands as **reconciled**, counting toward Coverage Score. Off by
+default, no telemetry; only the priced-cost ledger leaves (`export_log()` — no prompts or
+content). **Key difference from the call-end webhook:** ledger sync is **attribution
+only** — it makes off-path spend *visible* in Coverage Score but does **not** enforce
+(never trips `suspend_agent`, moves no balance), whereas the call-end URL self-report
+*does* enforce on the next session. Use the webhook when you want off-path spend to
+**bind** the budget; use ledger sync when you just want it **counted**. Budget, not balance.
+
 ## Managed orchestrators (Vapi / Retell / Bland) — adopt Floe without leaving the platform
 
 You don't run the pipeline, so you can't put Floe in every leg. Govern what the platform
