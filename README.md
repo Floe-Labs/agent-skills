@@ -1,6 +1,6 @@
 # Floe agent skills
 
-Agent skills for [**Floe**](https://floelabs.xyz) — the spend layer for AI agents.
+Agent skills for [**Floe**](https://floelabs.xyz) — spend controls for Voice AI.
 One `floe_` key for LLM, STT, TTS, telephony, search, and data APIs, with per-call
 cost attribution and spend limits that bind **before** money moves.
 
