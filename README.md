@@ -80,13 +80,15 @@ the in-process, client-side complement to this skill's server-side controls. See
 
 ## Get a key
 
-Sign up at **[floelabs.xyz/signup?src=skill](https://floelabs.xyz/signup?src=skill)** —
+Sign up at **[dev-dashboard.floelabs.xyz/?src=skill](https://dev-dashboard.floelabs.xyz/?src=skill)** —
 email only, no card. New accounts get a **$3 USDC welcome credit (~300 calls)** to run
 the skill end-to-end immediately.
 
-<!-- TODO(launch): the ?src=skill attribution param is NOT captured by the signup flow
-     today (no attribution handler exists in the app). Wire it on the marketing/signup
-     side before launch, or the skill-install cohort can't be measured. -->
+<!-- The ?src=skill first-touch attribution is captured by the dashboard on landing
+     and persisted to developers.signup_source at sign-up (floe-monorepo #381). The
+     skill-install cohort is measurable via GET /v1/admin/signup-sources. The link
+     points at the dashboard (not the marketing signup page) so the param lands where
+     it is captured. -->
 
 ## More
 
