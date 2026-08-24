@@ -1,7 +1,9 @@
 # Floe agent skills
 
-Agent skills for [**Floe**](https://floelabs.xyz) — spend controls for Voice AI.
-One `floe_` key for LLM, STT, TTS, telephony, search, and data APIs, with per-call
+Agent skills for [**Floe**](https://floelabs.xyz) — know what every AI call really costs.
+Floe costs each call the moment it ends across every vendor, shows your margin per client,
+and lets you invoice your own customers off the actuals. These skills teach a coding agent the
+function: one `floe_` key for LLM, STT, TTS, telephony, search, and data APIs, with per-call
 cost attribution and spend limits that bind **before** money moves.
 
 This repo is the canonical home for Floe's agent skills. Today it ships one:
