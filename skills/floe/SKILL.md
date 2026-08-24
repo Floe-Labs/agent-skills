@@ -28,10 +28,12 @@ metadata:
 
 # Floe — one key, one ledger, spend limits that bind pre-transaction
 
-Floe is a unified spend layer for multi-vendor agents. One `floe_` API key replaces
-individual vendor keys for LLM, STT, TTS, telephony, search, and data APIs. Every
-metered call flows through one ledger, so the agent's true cost-per-call, per-agent,
-and per-task is visible in real time — and budgets are enforced **before** the
+Floe tells you what every AI call really costs. It costs each call the moment it ends across
+every vendor — LLM, STT, TTS, telephony, search, data — on one ledger, ties the spend to the
+client and campaign, shows your margin per contract, and lets you invoice your own customers off
+those actuals through your own Stripe. Mechanically: one `floe_` API key replaces individual
+vendor keys, every metered call flows through one ledger so the agent's true cost-per-call,
+per-agent, and per-task is visible in real time — and budgets are enforced **before** the
 transaction, not discovered on an invoice.
 
 **Canonical endpoints** (memorize these):
