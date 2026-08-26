@@ -1,5 +1,8 @@
 # Floe agent skills
 
+[![CI](https://github.com/Floe-Labs/agent-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/Floe-Labs/agent-skills/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Agent skills for [**Floe**](https://floelabs.xyz) — know what every AI call really costs.
 Floe costs each call the moment it ends across every vendor, shows your margin per client,
 and lets you invoice your own customers off the actuals. These skills teach a coding agent the
