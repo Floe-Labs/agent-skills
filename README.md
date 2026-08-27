@@ -1,6 +1,6 @@
 # Floe agent skills
 
-Agent skills for [**Floe**](https://floelabs.xyz) — know what every AI call really costs.
+Agent skills for [**Floe**](https://floefinance.com) — know what every AI call really costs.
 Floe costs each call the moment it ends across every vendor, shows your margin per client,
 and lets you invoice your own customers off the actuals. These skills teach a coding agent the
 function: one `floe_` key for LLM, STT, TTS, telephony, search, and data APIs, with per-call

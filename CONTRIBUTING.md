@@ -49,4 +49,4 @@ CI validates that every `skills/*/SKILL.md` has valid frontmatter with a non-emp
 
 - Inaccuracy or bug in a skill → open a [Bug issue](../../issues/new?template=bug_report.md).
 - Idea for a new skill → open a [Feature issue](../../issues/new?template=feature_request.md).
-- Security issue → email **security@floelabs.xyz**, do not open a public issue.
+- Security issue → email **hello@floefinance.com**, do not open a public issue.

@@ -23,7 +23,7 @@ compatibility: >
 metadata:
   version: 1.0.0
   author: Floe Labs
-  homepage: https://floelabs.xyz
+  homepage: https://floefinance.com
 ---
 
 # Floe — one key, one ledger, spend limits that bind pre-transaction
@@ -44,7 +44,7 @@ transaction, not discovered on an invoice.
 | x402 proxy (paid search/data/other vendors) | `https://credit-api.floelabs.xyz/v1/proxy/fetch` |
 | Hosted MCP server (65 tools for Claude/Cursor) | `https://mcp.floelabs.xyz/mcp` |
 | Developer dashboard | `https://dev-dashboard.floelabs.xyz` |
-| Sign-up | `https://floelabs.xyz` |
+| Sign-up | `https://floefinance.com` |
 
 ## Two primitives — never conflate them
 
@@ -97,7 +97,7 @@ for how a running agent reads status and paces itself.
 
 ## Quickstart (60 seconds to first governed call)
 
-1. Sign up at https://floelabs.xyz — email only, no card. The account is provisioned
+1. Sign up at https://floefinance.com — email only, no card. The account is provisioned
    with a **$3 USDC welcome credit** (~300 typical calls) and a `floe_...` agent key
    (shown once — tell the user to copy it immediately).
 
