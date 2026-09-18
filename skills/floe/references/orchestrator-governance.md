@@ -18,9 +18,17 @@ spend that was **pre-call enforceable** (Floe gated it before the spend) vs
 **reconciled** (counted after the call, enforced *next* session) vs **dark** (on a
 platform never connected to Floe — invisible). Use it to state what's governed and to
 show the upgrade path. Every **Floe-metered or reconciled** leg lands on one ledger
-(`GET /v1/developer/ledger?groupBy=source|customer|campaign|agent`); **dark** spend —
+(`GET /v1/developer/ledger?groupBy=source|customer|task|agent`); **dark** spend —
 legs on platforms never connected to Floe — stays off the ledger by definition (you
 can't ledger what you never see).
+
+> **`groupBy=campaign` on `/ledger` is deprecated and does not mean campaign.** That
+> route reads `proxy_requests`, which carries no campaign column, so `campaign` has
+> always returned **task id** buckets. Use `groupBy=task` for the same data under its
+> real name. For a rollup on an actual campaign use
+> `GET /v1/developer/interactions/rollups?by=campaign` (per task) or
+> `GET /v1/developer/actuals/rollups?by=campaign` (per vendor leg) — never tell a
+> user `/ledger` grouped their spend by campaign, because it did not.
 
 ## Self-hosted / custom (Pipecat, LiveKit, any BYO stack) — the 100% path
 
