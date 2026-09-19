@@ -23,8 +23,8 @@ Advisory JSON:
 {
   "near_limit": true,                    // present when within the near-limit threshold
   "tightest": {                          // the cap closest to breaching
-    "scope": "session",                  // credit_line | session | task | api | vendor | key
-    "match": "invoice-8842",             // taskId / hostname / payee / null
+    "scope": "session",                  // credit_line | session | task | api | vendor | key | customer
+    "match": "invoice-8842",             // taskId / hostname / payee / key id / customer id / null
     "used_bps": 8600,                    // 0..10000 (86%)
     "remaining_raw": "700000",           // atomic USDC left under that cap
     "window_kind": "rolling",

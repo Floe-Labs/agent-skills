@@ -16,8 +16,10 @@ one returns `402`. From narrowest to broadest:
 1. **Per-key budget** — a spend budget on one API key.
 2. **Spend policy** — `task` / `api` / `vendor` scoped caps, `once` or `rolling` window.
 3. **Session spend limit** — one cap for the agent's current session.
-4. **Team (developer) policy** — a `session` / `task` / `api` / `vendor` cap across
-   *all* the developer's agents.
+4. **Team (developer) policy** — a `session` / `task` / `api` / `vendor` / `customer`
+   cap across *all* the developer's agents. `customer` caps one END-CLIENT's
+   spend (matchKey = the customer id) and is team-only: a per-agent customer cap
+   would count a single agent's spend while reading as the whole client's budget.
 5. **Balance** — funds actually available (`wallet` funded USDC and/or `credit_line`).
 
 ## Session spend limit
@@ -71,7 +73,7 @@ Apply across every agent in the developer account. Only here can `kind` be `sess
 
 ```
 GET    /v1/developer/policies
-POST   /v1/developer/policies         // kind: session | task | api | vendor
+POST   /v1/developer/policies         // kind: session | task | api | vendor | customer
 PATCH  /v1/developer/policies/:policyId
 DELETE /v1/developer/policies/:policyId
 ```
