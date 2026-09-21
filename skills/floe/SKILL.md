@@ -94,6 +94,8 @@ for how a running agent reads status and paces itself.
 | Agent already running on **Vapi / Retell / Bland** | Adopt Floe in place — model leg via custom-LLM (Vapi/Retell; Bland enterprise-only), pre-call admission + Reconcile Mode; report the coverage % — `references/orchestrator-governance.md` |
 | **Self-hosted voice** (Pipecat / LiveKit / custom stack) | Route every leg through Floe for **100% coverage**; self-report any leg kept off Floe — `references/orchestrator-governance.md` |
 | "How much of my agent's spend is actually *enforced*?" | Read the **coverage score** — pre-call vs reconciled vs dark — `references/orchestrator-governance.md` |
+| Agent should report what a task **produced** (booked meeting, qualified lead, resolution) | Emit an outcome against the task id so cost and outcome land on one row — `references/outcomes.md` |
+| "What did a booked meeting actually cost us?" | Outcomes joined to the task's cost; the rate card decides what a kind is worth — `references/outcomes.md` |
 
 ## Quickstart (60 seconds to first governed call)
 
@@ -282,3 +284,7 @@ whole bill is enforced pre-call from inside the platform. Full per-platform mech
 - `references/runtime-budget.md` — how a running agent reads budget status, the cost +
   advisory headers, and how `floe-guard` (client-side pacing) maps onto the server's
   authoritative caps so the agent never hand-rolls what the server already enforces.
+- `references/outcomes.md` — the outcome FACT: emitting a billable claim against a task
+  id, why it is not the per-action quality signal, the evidence allowlist (and what is
+  erasable), idempotency that survives a retry, and why two claims on one call become a
+  finding a person resolves rather than a guess the machine makes.
