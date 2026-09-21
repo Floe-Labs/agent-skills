@@ -15,7 +15,7 @@ They share a word and nothing else. Getting them mixed up is the most common mis
 | Keyed on | `actionId` | `taskId` |
 | Shape | `status` + `scoreBps` + `note` | `outcomeKind` + `quantity` + evidence |
 | Reaches an invoice | Never | Yes — this is what gets rated |
-| Re-reporting | Overwrites the previous signal | Appends a new event; nothing is updated |
+| Re-reporting | Overwrites the previous signal | **Refused.** A same-key replay returns the stored claim; a new key on a live claim is a `409`. Only an operator appends a correction |
 
 If you are answering *"did this decision work?"* use `reportOutcome`. If you are answering
 *"what did this task produce that we bill for?"* use `emitOutcome`.
@@ -45,10 +45,52 @@ agent.emit_outcome(
 )
 ```
 
-**MCP** — the `emit_outcome` tool, in the `outcomes` capability group. Same fields,
-snake_case (`task_id`, `outcome_kind`, `idempotency_key`).
+**MCP** — the `emit_outcome` tool, in the `outcomes` capability group. Same fields in
+snake_case (`task_id`, `outcome_kind`, `idempotency_key`) — that casing is an MCP
+convention, **not** the API's.
 
-**HTTP** — `POST /v1/agents/outcomes` with an agent key (`floe_…`).
+**HTTP** — `POST /v1/agents/outcomes` with an agent key. The wire is camelCase:
+
+```bash
+curl -X POST https://credit-api.floelabs.xyz/v1/agents/outcomes \
+  -H "Authorization: Bearer $FLOE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "taskId": "call-8821",
+    "outcomeKind": "meeting_booked",
+    "idempotencyKey": "call-8821:meeting_booked",
+    "quantity": 1,
+    "externalSystem": "hubspot",
+    "externalRef": "DEAL-9"
+  }'
+```
+
+| Field | Required | Rule |
+|---|---|---|
+| `taskId` | yes | The `X-Floe-Task-Id` this outcome is about. Names no call → `404` |
+| `outcomeKind` | yes | ≤64 chars, lowercased, never interpreted |
+| `idempotencyKey` | yes | ≤200 chars. Derive it from the fact, not at random |
+| `quantity` | no | Integer ≥1, default 1 |
+| `occurredAt` | no | ISO-8601; when it HAPPENED. Defaults to now |
+| `externalSystem` | no | ≤64 chars, lowercased |
+| `externalRef` | no | ≤256 chars, stored verbatim. **Requires `externalSystem`** |
+| `note` | no | ≤500 chars |
+
+Unknown fields are rejected outright rather than ignored, so a typo fails loudly.
+
+### Emitting the same outcome twice
+
+The one thing to get right before you build a retry loop:
+
+| What you send | What happens |
+|---|---|
+| Same `idempotencyKey` | `200` with the stored claim — no second row. This is why retries are safe |
+| New key, same task + kind, claim still live | `409 outcome_claim_exists` |
+| New key, **different** kind on the same task | `201` — a separate claim, which is correct |
+| Same key, **different** task | `409 outcome_claim_bound_elsewhere` |
+
+**Your agent never appends to a chain.** Appending is a *revision* — confirming or
+voiding — and that is the operator surface, not this one.
 
 ## The rules that will bite you
 
