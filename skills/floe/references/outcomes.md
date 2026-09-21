@@ -55,10 +55,15 @@ snake_case (`task_id`, `outcome_kind`, `idempotency_key`).
 **A task id that names no call is refused (404), not stored.** An outcome nothing can
 bill is worse than no outcome, because it looks like one. Tag the call first, emit after.
 
-**`outcomeKind` is opaque to Floe.** Lowercased, ≤64 chars, never interpreted. What a
-kind is *worth* lives on the operator's rate card — the place money meaning belongs. Pick
-stable names (`meeting_booked`, not `meeting booked (sept)`), because the rate card keys
-on them.
+**`outcomeKind` is opaque to Floe.** Lowercased, ≤64 chars, never interpreted — the
+vocabulary is the operator's. Pick stable names (`meeting_booked`, not `meeting booked
+(sept)`) and keep them stable once you start emitting, because anything that later prices
+an outcome will key on the kind.
+
+**Pricing per outcome kind does not exist yet.** Rate cards today meter per request, per
+audio minute, per task and per voice call — there is no outcome unit. Emitting a claim,
+having it confirmed, and reading it back all work now; rating a kind against a price comes
+with the rating work. Emit anyway — the claims are what that will rate.
 
 **`idempotencyKey` is required.** Emitters retry; a replay of the same key returns the
 stored claim instead of creating a second one. Use a key derived from the fact itself
